@@ -21,8 +21,8 @@ $connection.Open()
 $SqlCmd = New-Object System.Data.SqlClient.SqlCommand  
 
 $SqlCmd.CommandText = "
-    SELECT 
-	    [sSVR].[name] + '.' +[sJOB].[name] AS [JobName]
+SELECT 
+	    REPLACE([sSVR].[name],'\','') + '.' +[sJOB].[name] AS [JobName]
     FROM
 	    [msdb].[dbo].[sysjobs] AS [sJOB] WITH (NOLOCK)
 	    INNER JOIN [msdb].[sys].[servers] AS [sSVR] WITH (NOLOCK) ON [sJOB].[originating_server_id] = [sSVR].[server_id]
@@ -40,8 +40,8 @@ $SqlCmd.CommandText = "
     ORDER BY [JobName]
 
 	SELECT 
-		[sSVR].[name] + '.' +[sJOB].[name] AS 'JOB_NAME'
-		,[sSVR].[name] AS 'SERVERNAME'
+		REPLACE([sSVR].[name],'\','') + '.' +[sJOB].[name] AS 'JOB_NAME'
+		,REPLACE([sSVR].[name],'\','') AS 'SERVERNAME'
 		,CONVERT(VARCHAR, [sJOB].[date_created], 121) AS 'CREATED' 
 		,ISNULL(CONVERT(VARCHAR, [sJOB].[date_modified], 121), '') AS 'MODIFIED'
 		,[sJOB].[enabled] AS 'IS_ENABLED'
@@ -73,6 +73,7 @@ $SqlCmd.CommandText = "
 			) AS l ON sJOB.job_id = l.job_id
 		LEFT JOIN [msdb].[dbo].sysjobhistory AS h WITH (NOLOCK) ON h.job_id = l.job_id AND h.instance_id = l.instance_id
 	WHERE [sJOB].[name] <> 'syspolicy_purge_history'
+
 "
 
 $SqlCmd.Connection = $Connection
